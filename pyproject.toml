@@ -1,0 +1,48 @@
+[build-system]
+requires = ['setuptools']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'django-daiquiri-sync'
+description = 'Daiquiri Sync is a python library meant to be used with the Daiquiri Framework.'
+readme = 'README.rst'
+dynamic = ['version']
+license = { text = 'Apache-2.0' }
+authors = [{ name = 'Jochen Klar', email = 'jklar@aip.de' }]
+maintainers = [{ name = 'Kirill Makan', email = 'kmakan@aip.de' }]
+requires-python = '>=3.9'
+classifiers = [
+  'Development Status :: 4 - Beta', # 3 - Alpha, 4 - Beta, 5 - Production/Stable, 6 - Mature, 7 - Inactive (1 - Planning)
+  'Intended Audience :: Developers',
+  'Intended Audience :: System Administrators',
+  'Programming Language :: Python :: 3',
+  'Operating System :: Linux and OSX',
+]
+
+dependencies = [
+  'ansible~=12.1.0',
+  'paramiko~=4.0.0',
+  'PyYAML~=6.0.3',
+]
+
+[project.optional-dependencies]
+mysql = ['mysqlclient~=2.2.7']
+postgresql = ['psycopg~=3.2.10']
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+quote-style = 'single'
+
+[project.urls]
+Repository = 'https://github.com/django-daiquiri/sync'
+Issues = 'https://github.com/django-daiquiri/sync/issues'
+
+
+[tool.setuptools.dynamic]
+version = { attr = 'daiquiri_sync.__version__' }
+
+[tool.setuptools]
+packages = ['daiquiri_sync']
+include-package-data = false
