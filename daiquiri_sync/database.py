@@ -7,7 +7,7 @@ class Database():
             self.connection = MySQLdb.connect(**config)
         elif engine == 'postgresql':
             import psycopg
-            self.connection = psycopg.connect(config)
+            self.connection = psycopg.connect(**config)
 
     def get_password_map(self):
         # fetch all users and password hashes from the database
