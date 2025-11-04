@@ -5,9 +5,11 @@ import yaml
 
 class Ansible():
 
-    def __init__(self, inventory_file, playbook_file):
+    def __init__(self, inventory_file, playbook_file, head_nodes_indexes = [0,]):
         self.inventory_file = inventory_file
         self.playbook_file = playbook_file
+        self.head_nodes_indexes = head_nodes_indexes
+        self.head_nodes = []
 
         # parse the ansible inventory file
         config = configparser.RawConfigParser(allow_no_value=True)
@@ -22,7 +24,8 @@ class Ansible():
             self.hosts[host_group] = [name for name, _ in config.items(host_group)]
 
         # get the head node
-        self.head_node = self.hosts[self.host_groups[0]][0]
+        for head_node_index in self.head_nodes_indexes:
+            self.head_nodes.append(self.hosts[self.host_groups[head_node_index]][0])
 
         # initialize the plays dict, seperated by host_group
         self.plays = {}
@@ -35,17 +38,18 @@ class Ansible():
             }
 
         # add a play for the head_node
-        self.plays[self.head_node] = {
-            'name': 'Sync %s' % self.head_node,
-            'hosts': self.head_node,
-            'remote_user': 'root',
-            'tasks': []
-        }
+        for head_node in self.head_nodes:
+            self.plays[head_node] = {
+                'name': 'Sync %s' % head_node,
+                'hosts': head_node,
+                'remote_user': 'root',
+                'tasks': []
+            }
 
 
     def play(self, dry=False):
         # convert the plays dict to a yaml, but preserving the order of host_groups
-        plays = [self.plays[hosts] for hosts in self.host_groups + [self.head_node]]
+        plays = [self.plays[hosts] for hosts in self.host_groups + self.head_nodes]
         playbook_yaml = yaml.dump(plays)
 
         # write the yaml into a (secure) temporary file
