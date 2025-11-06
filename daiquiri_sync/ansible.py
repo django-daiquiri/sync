@@ -5,10 +5,9 @@ import yaml
 
 class Ansible():
 
-    def __init__(self, inventory_file, playbook_file, extra_nodes_indexes = []):
+    def __init__(self, inventory_file, playbook_file, extra_nodes=[]):
         self.inventory_file = inventory_file
         self.playbook_file = playbook_file
-        self.extra_nodes_indexes = extra_nodes_indexes
         self.extra_nodes = []
 
         # parse the ansible inventory file
@@ -20,13 +19,16 @@ class Ansible():
 
         # set the dict of hosts, seperated by host_group
         self.hosts = {}
+        self.extra_nodes = []
         for host_group in self.host_groups:
             self.hosts[host_group] = [name for name, _ in config.items(host_group)]
+            for extra_node in extra_nodes:
+                if extra_node in self.hosts[host_group] and extra_node not in self.extra_nodes:
+                    self.extra_nodes.append(extra_node)
+
 
         # get the head node
         self.head_node = self.hosts[self.host_groups[0]][0]
-        for extra_node_index in self.extra_nodes_indexes:
-            self.extra_nodes.append(self.hosts[self.host_groups[extra_node_index]][0])
 
         # initialize the plays dict, seperated by host_group
         self.plays = {}
