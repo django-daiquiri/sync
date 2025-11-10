@@ -19,13 +19,8 @@ class Ansible():
 
         # set the dict of hosts, seperated by host_group
         self.hosts = {}
-        self.extra_nodes = []
         for host_group in self.host_groups:
             self.hosts[host_group] = [name for name, _ in config.items(host_group)]
-            for extra_node in extra_nodes:
-                if extra_node in self.hosts[host_group] and extra_node not in self.extra_nodes:
-                    self.extra_nodes.append(extra_node)
-
 
         # get the head node
         self.head_node = self.hosts[self.host_groups[0]][0]
@@ -48,14 +43,7 @@ class Ansible():
             'tasks': []
         }
         # add a play for the extra nodes
-        for extra_node in self.extra_nodes:
-            self.plays[extra_node] = {
-                'name': 'Sync %s' % extra_node,
-                'hosts': extra_node,
-                'remote_user': 'root',
-                'tasks': []
-            }
-
+        self.add_extra_nodes(self.extra_nodes)
 
     def play(self, dry=False):
         # convert the plays dict to a yaml, but preserving the order of host_groups
@@ -73,3 +61,20 @@ class Ansible():
             subprocess.call(args + ['--check'])
         else:
             subprocess.call(args)
+
+    def add_extra_nodes(self, extra_nodes=[]):
+        # add a play for the extra nodes
+        extra_nodes = set(extra_nodes)
+        all_nodes = []
+        for host_group in self.host_groups:
+            all_nodes += self.hosts[host_group]
+        for extra_node in extra_nodes:
+            if extra_node in all_nodes:
+                    self.plays[extra_node] = {
+                        'name': 'Sync %s' % extra_node,
+                        'hosts': extra_node,
+                        'remote_user': 'root',
+                        'tasks': []
+                    }
+            else:
+                raise ValueError("Warning: the node '%s' not found in inventory." % extra_node)
