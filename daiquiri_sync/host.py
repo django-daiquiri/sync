@@ -41,7 +41,7 @@ class Host():
 
         passwd = []
         for row in csv.reader(stdout.read().decode().split('\n'), delimiter=':', quoting=csv.QUOTE_NONE):
-            if row:
+            if row and len(row) >= 7:
                 passwd.append({
                     'name': row[0],
                     'uid': int(row[2]),
@@ -58,7 +58,7 @@ class Host():
 
         groups = []
         for row in csv.reader(stdout.read().decode().split('\n'), delimiter=':', quoting=csv.QUOTE_NONE):
-            if row:
+            if row and len(row) >= 4:
                 groups.append({
                     'name': row[0],
                     'gid': int(row[2]),
